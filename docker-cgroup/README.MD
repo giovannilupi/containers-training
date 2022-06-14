@@ -4,9 +4,8 @@ Exploring the interaction between Docker containers and cgroup.
 
 ## Description
 This folder contains three bash scripts:
-- `burner_program.sh` : a script containing a simple loop, that mimics the behavior of a cpu intensive program.
-- `cpuset_runner.sh` : this is the script to invoke to run the example. It must necessarily be executed from `tmux`. It first runs `htop` in a new window and then launches `cpuset_runner.sh` as superuser.
-- `cpuset_runner.sh` : this script is the core of the example. It runs `burner_program.sh` to allow the user to observe the cpu status for a few second. After that, it adds the process to a new cgroup and binds it to the CPU number 2 using the cpuset controller. Later, it creates two new subfolders in the cgroup hierarchy, migrates the current burner program instance to one of them and activates the cpu controller to limit resource consumption. Lastly, it sets the brother cgroup control interface files with the same settings, runs another burner program instance and attaches it to that cgroup. This way, both instances will run and share resources form the same CPU. The script also performs a cleanup of the hiearchy.
+- `container_runner.sh` : this is the script to invoke to run the example. It must necessarily be executed from `tmux`. It first runs `htop` in a new window and then launches `container_manager.sh` as superuser.
+- `container_manager.sh` : this script runs three containers using docker. First, two containers are created using the `--cgroup-parent` flag to change their cgroup base folder. A cpu burner script is run in each container and some cpu related limits are activated by manipulating directly the cgroup filesystem. Then, the last container is created using the  `--cpuset-cpus` flag to bind its execution to processor number 3. This time, the container base cgroup folder is the default one. The burner script is run in this last container, and later some cpu limits are set through the `docker update` command. This last example shows that the docker CLI commands manipulate the cgroup hierarchy identically to what one could do manually, as with the first two containers. Lastly, the script kills all three containers and performs a cleanup.
 
 ---
 
